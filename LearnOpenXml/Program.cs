@@ -4,7 +4,8 @@ using LearnOpenXml.Utils;
 
 var pairs = new Dictionary<string, string>()
 {
-    { "test", "another text" }
+    { "test", "another text" },
+    { "key to replace", "REPLACED TEXT"}
 };
 
 await using var original = typeof(Replacer).Assembly.GetManifestResourceStream("LearnOpenXml.test.docx")!;

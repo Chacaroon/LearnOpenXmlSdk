@@ -34,8 +34,6 @@ class Replacer
         }
     }
 
-    // Text in a paragraph can be split by pieces of type Text
-    // Trying to join pieces into one item and replace the key in it
     private static void ReplaceParagraph(OpenXmlElement paragraph, int index, string key, string value)
     {
         var count = 0;
@@ -56,19 +54,12 @@ class Replacer
                 continue;
             }
             
-            // If count is between start and end indexes of the key, it means that the key is split
-            // Saving all parts of the key into a StringBuilder and removing redundant elements
-            
-            // For example:
-            // <text>useless text just ignore</text>
-            // <text>some text {key to rep</text>
-            // <text>lace} more text</text>
-            // 
-            // after replacement
-            // 
-            // <text>useless text just ignore</text>
-            // <text>some text REPLACED TEXT more text</text>
-            if (index <= count && count < index + key.Length)
+            // Text in a paragraph can be split by pieces of type Text
+            // Trying to join pieces into one item and replace the key in it
+            if (count <= index && index + key.Length < count + item.Text.Length     // <text>some text {key to replace} some text</text> 
+                || Between(index, count, count + item.Text.Length)                  // <text>some text {key to</text>
+                || Between(index + key.Length, count, count + item.Text.Length)     // <text> replace} some text</text>
+                || Between(count, index, index + key.Length))                       // <<text>some text {key </text><text>to rep</text><<text>lace} some text</text>
             {
                 builder.Append(item.Text);
 
@@ -83,4 +74,6 @@ class Replacer
     }
 
     private static string EscapeKeyIfNeeded(string key, bool escape) => escape ? $"{{{key}}}" : key;
+
+    private static bool Between(int number, int from, int to) => from <= number && number < to;
 }
